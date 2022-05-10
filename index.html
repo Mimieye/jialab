@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Jialab tracking system</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        #wrapper {
+            position: relative;
+            text-align: center;
+            max-width: 560px;
+            margin: 0 auto;
+            overflow: hidden;
+            padding: 30px 0 80px;
+        }
+
+        #logo {
+            margin: 50px 0 40px;
+        }
+
+        p {
+            margin: 0;
+            letter-spacing: 0.04em;
+            line-height: 1.7em;
+        }
+
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .input_unit {
+            margin: 40px 0 10px;
+        }
+
+        .input_unit:first-child {
+            margin-top: 60px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input[type=text] {
+            width: 296px;
+            height: 30px;
+            margin-left: 6px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            padding: 0px 5px;
+        }
+
+        button, .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4D4D4D;
+            color: #FFF;
+            min-width: 100px;
+            margin: 20px 0 0;
+            font-size: 15px;
+            padding: 4px 20px 6px;
+            font-weight: 300;
+            border: 1px solid #4D4D4D;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+        }
+
+        button:disabled {
+            content: "查詢中";
+            color: #4D4D4D;
+            background-color: transparent;
+        }
+
+        button:hover, .btn:hover {
+            border: 1px solid #969696;
+            background-color: #969696;
+            text-decoration: none;
+        }
+
+        #error {
+            position: absolute;
+            font-size: 15px;
+            width: 100%;
+            color: #F00;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .output_section {
+            margin-top: 140px;
+        }
+
+        .output_column:first-child {
+            margin-bottom: 50px;
+        }
+
+        .output_column .frame {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #F2F2F2;
+            width: 400px;
+            height: 55px;
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            #wrapper {
+                font-size: 13px;
+            }
+
+            input[type=text] {
+                width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function submitFunction (e) {
+            e.preventDefault();
+
+            var backerId = document.getElementById("backerId").value;
+            var error = document.getElementById("error");
+            var tracking_number = document.getElementById("tracking_number");
+            var courier_1 = document.getElementById("courier_1");
+            var courier_2 = document.getElementById("courier_2");
+            var submit = document.getElementById("submit");
+            submit.setAttribute("disabled", true);
+            submit.innerHTML = "查詢中";
+
+            if (backerId !== "") {
+                error.innerHTML = "";
+                tracking_number.innerHTML =  "";
+                courier_1.innerHTML =  "";
+                courier_2.innerHTML =  "";
+                axios.get('https://script.google.com/macros/s/AKfycbxV8mAMaXo8_XrmkrRTTSLXZCGqmze5fYMPqqVg38S4GuTafpmUv1EgPav02x_Ebe-4/exec', {
+                        params: {
+                            backerId: backerId
+                        },
+                    })
+                    .then(function (response) {
+                        // handle success
+                        var output = response.data[0];
+                        if (output.status === "success") {
+                            tracking_number.innerHTML = output["tracking_num"];
+                            courier_1.innerHTML = output["courier_1"];
+                            courier_2.innerHTML = output["courier_2"];
+                        } else {
+                            console.log("Invalid ID or e-mail !");
+                            error.innerHTML = "查無資料！請確認輸入內容是否正確";
+                        }
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    })
+                    .then(function () {
+                        // always executed
+                        submit.removeAttribute("disabled", true);
+                        submit.innerHTML = "送出";
+                    });
+            } else {
+                console.log("some input is empty");
+                submit.removeAttribute("disabled", true);
+                submit.innerHTML = "送出";
+            }
+
+            // return false;
+        }
+    </script>
+    <div id="wrapper">
+        <div id="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 232 66" width="154" height="44">
+                <path fill="#231815" d="M44.5 16.8h8.4v36.7h-8.4zM123 .8h8.4v52.7H123zM3.3 25.6h12.2v15.9c0 8.3-6.5 15-14.5 15v8.8c12.7 0 22.9-10.7 22.9-23.8V16.8H3.3v8.8zM106.3 16.8h-6.6l-.2 4.2c-3.2-2.6-7.2-4.1-11.5-4.1-10.1 0-18.3 8.2-18.3 18.3 0 10.1 8.2 18.3 18.3 18.3 3.7 0 7.1-1.1 10-3l-.2 3h8.4V35.4v-.2-18.4zM87.9 45c-5.4 0-9.9-4.4-9.9-9.9 0-5.4 4.4-9.9 9.9-9.9 5.4 0 9.9 4.4 9.9 9.9S93.4 45 87.9 45zM180.7 16.8h-6.6l-.2 4.1c-3.2-2.6-7.2-4.1-11.5-4.1-10.1 0-18.3 8.2-18.3 18.3 0 10.1 8.2 18.3 18.3 18.3 3.7 0 7.1-1.1 10-3l-.2 3h8.4v-18-.2-18.4zM162.4 45c-5.4 0-9.9-4.4-9.9-9.9 0-5.4 4.4-9.9 9.9-9.9 5.4 0 9.9 4.4 9.9 9.9s-4.4 9.9-9.9 9.9zM212.7 16.9c-3.6 0-7 1.1-9.9 2.9V.8h-8.5v52.7h8.4v-2.9c2.9 1.8 6.2 2.9 9.9 2.9 10.1 0 18.3-8.2 18.3-18.3.1-10.1-8.1-18.3-18.2-18.3zm0 28.1c-5.4 0-9.9-4.4-9.9-9.9 0-5.4 4.4-9.9 9.9-9.9 5.4 0 9.9 4.4 9.9 9.9s-4.5 9.9-9.9 9.9z"/>
+            </svg>
+        </div>
+        <p>感謝您的耐心等候，我們將依照贊助順序陸續出貨<br />出貨完成後會於此處更新物流編號，請留意收件狀況<br />若有任何疑問，請來信 <a  target="_blank" href="mailto:rindon@jiatechlab.com">rindon@jiatechlab.com</a></p>
+        <form onsubmit="return submitFunction(event)">
+            <div class="input_unit">
+                <label for="backerId">
+                    贊助編號：<input type="text" id="backerId" required>
+                </label>
+            </div>
+            <button id="submit">送出</button>
+            <p id="error"></p>
+        </form>
+        <div class="output_section">
+            <div class="output_column">
+                <div class="title">出貨狀態</div>
+                <div id="tracking_number" class="frame"></div>
+            </div>
+            <div class="output_column">
+                <div class="title">物流編號</div>
+                <div id="courier_1" class="frame"></div>
+                <div id="courier_2" class="frame"></div>
+            </div>
+        </div>
+        <a class="btn" target="_blank" href="https://postserv.post.gov.tw/pstmail/main_mail.html?targetTxn=EB500100">物流進度查詢</a>
+    </div>
+</body>
+</html>
